@@ -1,0 +1,110 @@
+{
+  "format": 1,
+  "restore": {
+    "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\Better_Cloth\\Better_Cloth.csproj": {}
+  },
+  "projects": {
+    "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\BetterExperience.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\BetterExperience.csproj",
+        "projectName": "BetterExperience",
+        "projectPath": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\BetterExperience.csproj",
+        "packagesPath": "C:\\Users\\rockw\\.nuget\\packages\\",
+        "outputPath": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\rockw\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net472"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net472": {
+            "targetAlias": "net472",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net472": {
+          "targetAlias": "net472",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.316\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\Better_Cloth\\Better_Cloth.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\Better_Cloth\\Better_Cloth.csproj",
+        "projectName": "Better_Cloth",
+        "projectPath": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\Better_Cloth\\Better_Cloth.csproj",
+        "packagesPath": "C:\\Users\\rockw\\.nuget\\packages\\",
+        "outputPath": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\Better_Cloth\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\rockw\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net472"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net472": {
+            "targetAlias": "net472",
+            "projectReferences": {
+              "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\BetterExperience.csproj": {
+                "projectPath": "F:\\Games\\AAA\\SMA_23.1_HomeworkTestbed\\BepInEx\\plugins\\BetterExperience\\decompiled\\BetterExperience\\BetterExperience.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net472": {
+          "targetAlias": "net472",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.316\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

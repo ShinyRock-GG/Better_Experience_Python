@@ -1,0 +1,12 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BetterExperience -> F:\Games\AAA\SMA_23.1_HomeworkTestbed\BepInEx\plugins\BetterExperience\decompiled\BetterExperience\bin\Release\net472\BetterExperience.dll
+  Better_Cloth -> F:\Games\AAA\SMA_23.1_HomeworkTestbed\BepInEx\plugins\BetterExperience\decompiled\Better_Cloth\bin\Release\net472\Better_Cloth.dll
+  Better_Scene -> F:\Games\AAA\SMA_23.1_HomeworkTestbed\BepInEx\plugins\BetterExperience\decompiled\Better_Scene\bin\Release\net472\Better_Scene.dll
+  Better_Story -> F:\Games\AAA\SMA_23.1_HomeworkTestbed\BepInEx\plugins\BetterExperience\decompiled\Better_Story\bin\Release\net472\Better_Story.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.15
