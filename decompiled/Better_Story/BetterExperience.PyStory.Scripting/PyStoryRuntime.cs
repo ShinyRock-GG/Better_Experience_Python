@@ -921,6 +921,66 @@ public class PyStoryRuntime
 		}
 	}
 
+	// ── Facial blendshape / mouth-gesture overlay (AIchat micro-expressions) ──
+	// Exposes the per-guest ComboGestureController (already built + instantiated) to Python.
+	// Weights MAX-COMBINE with the native emotion face, so these AUGMENT it rather than fight.
+	// weight is 0..1. `name` is the friendly part of a MapaDeCCAnimationBlendShapes key
+	// (e.g. "Lips_Smirk_L" resolves to "Lips_Smirk_L$$RL_32$$"). Gestures are MouthGesture names
+	// (morderLabio / abrirLabios / suck / pico / sorprender / ...). No-op before Materialize().
+	private GesturesWeights faceWeights;
+	private Dictionary<string, string> faceKeyByFriendly;
+
+	private GesturesWeights FaceWeights
+	{
+		get
+		{
+			if (faceWeights == null && Session?.Guest?.GesturesController != null)
+			{
+				faceWeights = Session.Guest.GesturesController.RequestWeightsAccessor(Scope);
+				faceKeyByFriendly = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+				foreach (string k in faceWeights.FaceBlendShapes.Keys)
+				{
+					int cut = k.IndexOf("$$", StringComparison.Ordinal);
+					string friendly = (cut >= 0) ? k.Substring(0, cut) : k;
+					faceKeyByFriendly[friendly] = k;
+					faceKeyByFriendly[friendly.Replace(' ', '_')] = k; // tolerate "Lip Open" vs "Lip_Open"
+				}
+			}
+			return faceWeights;
+		}
+	}
+
+	public void set_face_blendshape(string name, float weight)
+	{
+		GesturesWeights w = FaceWeights;
+		if (w == null || faceKeyByFriendly == null || name == null) return;
+		if (!faceKeyByFriendly.TryGetValue(name, out var key)) return; // unknown name -> ignore
+		w.Enabled = true;
+		w.FaceBlendShapesOverride = true;
+		w.FaceBlendShapes[key] = Mathf.Clamp01(weight);
+		w.Dirty = true;
+	}
+
+	public void set_mouth_gesture(string gesture, float weight)
+	{
+		GesturesWeights w = FaceWeights;
+		if (w == null || gesture == null) return;
+		if (!Enum.TryParse<MouthGesture>(gesture, ignoreCase: true, out var g)) return;
+		w.Enabled = true;
+		w.MouthOverride = true;
+		w.MouthExpression[g] = Mathf.Clamp01(weight);
+		w.Dirty = true;
+	}
+
+	public void clear_face_overlay()
+	{
+		GesturesWeights w = faceWeights; // don't create the accessor just to clear it
+		if (w == null) return;
+		foreach (string k in w.FaceBlendShapes.Keys) w.FaceBlendShapes[k] = 0f;
+		foreach (MouthGesture g in w.MouthExpression.Keys) w.MouthExpression[g] = 0f;
+		w.Dirty = true;
+	}
+
 	public void send_notification(string text, float duration, float fadeOut)
 	{
 		overlayService.InfoMessage(text, duration, fadeOut);
