@@ -118,9 +118,12 @@ internal class FSVirtIo : VirtIO
 
 	public T Persisted<T>(Func<T> factory, string name)
 	{
-		if (ListFiles().Contains(name))
+		// No ListFiles().Contains pre-check: that re-enumerates the whole directory
+		// (861 FileInfo allocations in poses/) for EVERY file read, turning repository
+		// init into O(n²) file stats. Read() already returns null for missing files.
+		byte[] bytes = (dir.Exists ? Read(name) : null);
+		if (bytes != null)
 		{
-			byte[] bytes = Read(name);
 			string text = Encoding.UTF8.GetString(bytes);
 			return GlobalPersistenceService.Deserialize<T>(text);
 		}

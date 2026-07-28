@@ -136,7 +136,10 @@ public class Repository<T> where T : Stored
 
 	private void EnsureLoaded()
 	{
-		if (asyncHandle != null && asyncHandle.IsCompleted)
+		// Must wait when the load has NOT completed yet — the previous
+		// "IsCompleted" condition was inverted, so callers racing the loader
+		// thread could read a partially-populated (non-concurrent) dictionary.
+		if (asyncHandle != null && !asyncHandle.IsCompleted)
 		{
 			asyncHandle.Wait();
 		}

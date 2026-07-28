@@ -16,6 +16,13 @@ public class PythonScriptRepository
 
 	private Dictionary<string, Func<string>> scripts = new Dictionary<string, Func<string>>();
 
+	// Decoded-content cache for GetScript. IronPython's find_module walk probes the
+	// same files repeatedly (pkg/__init__.py then pkg.py per import), and each raw
+	// read re-decompresses zip-backed stdlib entries. IsChanged() intentionally
+	// bypasses this cache (it must see fresh content for hot-reload) and flushes it
+	// whenever a change is detected.
+	private Dictionary<string, string> contentCache = new Dictionary<string, string>();
+
 	private Hash128 lastHash = default(Hash128);
 
 	public ICollection<string> Scripts => scripts.Keys;
@@ -25,6 +32,7 @@ public class PythonScriptRepository
 	public void Init(VirtIO vFS)
 	{
 		scripts.Clear();
+		contentCache.Clear();
 		foreach (VirtIOEntry e in vFS.Enumerate())
 		{
 			if (Matches(e.Path) && e.Name.EndsWith(".py"))
@@ -53,9 +61,15 @@ public class PythonScriptRepository
 
 	public string GetScript(string path)
 	{
+		if (contentCache.TryGetValue(path, out var cached))
+		{
+			return cached;
+		}
 		if (scripts.TryGetValue(path, out var a))
 		{
-			return a();
+			string content = a();
+			contentCache[path] = content;
+			return content;
 		}
 		return null;
 	}
@@ -69,6 +83,10 @@ public class PythonScriptRepository
 		}
 		bool changed = hash.CompareTo(lastHash) != 0;
 		lastHash = hash;
+		if (changed)
+		{
+			contentCache.Clear();
+		}
 		return changed;
 	}
 }

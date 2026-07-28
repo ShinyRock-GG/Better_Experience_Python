@@ -25,6 +25,7 @@ internal class CachedIO : VirtIO
 		{
 			Merge(io);
 		}
+		AssignWriteAccessors();
 	}
 
 	public CachedIO(Dictionary<string, VirtIOEntry> dict)
@@ -48,15 +49,28 @@ internal class CachedIO : VirtIO
 			}
 			entry.Accessors.AddRange(e.Accessors);
 		}
-		if (writebleIO != null)
+	}
+
+	// Runs ONCE after all packages merge (was previously re-run over every
+	// accumulated entry inside each Merge — O(packages × entries) redundant
+	// FSVirtIo/DirectoryInfo allocations). Dir handles are also shared per
+	// unique path instead of allocated per entry.
+	private void AssignWriteAccessors()
+	{
+		if (writebleIO == null)
 		{
-			foreach (VirtIOEntry e2 in entries.Values)
-			{
-				e2.WriteAccessor = new VirtIOAccessor(writebleIO.Dir(e2.Path), e2.Name);
-			}
+			Logger.Global.Error("NO WRIO");
 			return;
 		}
-		Logger.Global.Error("NO WRIO");
+		Dictionary<string, VirtIO> dirCache = new Dictionary<string, VirtIO>();
+		foreach (VirtIOEntry e2 in entries.Values)
+		{
+			if (!dirCache.TryGetValue(e2.Path, out var d))
+			{
+				d = (dirCache[e2.Path] = writebleIO.Dir(e2.Path));
+			}
+			e2.WriteAccessor = new VirtIOAccessor(d, e2.Name);
+		}
 	}
 
 	public void DeleteOrUpdateFile(string name, byte[] data)
