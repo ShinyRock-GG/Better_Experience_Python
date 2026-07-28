@@ -81,10 +81,34 @@ internal class MonkeyDelegate : SessionService
 			AssetBundle assetBundle;
 			if (!LoadedAssetBundles.TryGetValue(path, out var abi))
 			{
-				AssetBundleCreateRequest req = AssetBundle.LoadFromFileAsync(path);
+				// LZMA-compressed bundles are fully decompressed inside
+				// LoadFromFileAsync on a single thread (~25 MB/s — 16+s for this
+				// 389 MB bundle, regardless of disk speed or loading priority).
+				// One-time fix: recompress to an LZ4 sidecar cache, then always
+				// load the LZ4 copy (LZ4 loads lazily, near-instant open).
+				string lz4Path = path + ".lz4cache";
+				bool cacheValid = File.Exists(lz4Path)
+					&& File.GetLastWriteTimeUtc(lz4Path) >= File.GetLastWriteTimeUtc(path);
+				if (!cacheValid)
+				{
+					sw.Restart();
+					AssetBundleRecompressOperation rop = AssetBundle.RecompressAssetBundleAsync(
+						path, lz4Path, BuildCompression.LZ4Runtime, 0u, ThreadPriority.High);
+					yield return new AssetLoader.AsyncWrapper(rop, "MonkeyBridge: converting asset to fast format (one-time)");
+					logger.Warn("[MonkeyPerf] LZ4 recompress({0}) success={1} result={2} took {3}ms",
+						Path.GetFileName(path), rop.success, rop.result, sw.ElapsedMilliseconds);
+					cacheValid = rop.success && File.Exists(lz4Path);
+					if (!cacheValid && File.Exists(lz4Path))
+					{
+						File.Delete(lz4Path); // don't leave a broken cache behind
+					}
+				}
+				string loadPath = (cacheValid ? lz4Path : path);
+				sw.Restart();
+				AssetBundleCreateRequest req = AssetBundle.LoadFromFileAsync(loadPath);
 				yield return new AssetLoader.AsyncWrapper(req, "MonkeyBridge: loading asset");
 				assetBundle = req.assetBundle;
-				logger.Warn("[MonkeyPerf] LoadFromFileAsync({0}) took {1}ms", Path.GetFileName(path), sw.ElapsedMilliseconds);
+				logger.Warn("[MonkeyPerf] LoadFromFileAsync({0}) took {1}ms", Path.GetFileName(loadPath), sw.ElapsedMilliseconds);
 				if (assetBundle != null)
 				{
 					LoadedAssetBundles.Add(path, new AssetManager.BundleInfo(assetBundle, AssetIdRef++));
