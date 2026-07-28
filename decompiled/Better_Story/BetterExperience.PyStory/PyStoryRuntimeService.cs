@@ -183,6 +183,7 @@ public class PyStoryRuntimeService : StoryService
 	{
 		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
 		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		logger.Warn("[LoadPerf] t={0:F2}s Start3_Sync begin (python main)", UnityEngine.Time.realtimeSinceStartup);
 		MeasureTime val = MeasureTime.Create(logger, (Func<long, string>)((long t) => $"Python startup: {t}ms"), true);
 		try
 		{

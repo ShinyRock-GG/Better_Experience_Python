@@ -110,33 +110,19 @@ public class Repository<T> where T : Stored
 		if (CustomSceneFeature.VerboseSceneLogging?.Value == true)
 			logger.Info("[SceneLog] Repository<{0}> found {1} file(s)", typeof(T).Name, entries.Count);
 		progress.Report(0, entries.Count);
-		// Phase 1 — read + JSON-deserialize in parallel. This is the expensive part
-		// (45MB of .pac JSON alone); JsonConvert is stateless/thread-safe and file
-		// reads are independent (zip-backed accessors serialize on their own
-		// archive lock). Results land in an index-aligned array so phase 2 keeps
-		// the original enumeration order.
-		DataEntry<T>[] loaded = new DataEntry<T>[entries.Count];
-		int done = 0;
-		System.Threading.Tasks.Parallel.For(0, entries.Count, delegate(int i)
-		{
-			VirtIOEntry e2 = entries[i];
-			DataEntry<T> entry = new DataEntry<T>(e2.Accessors, e2.WriteAccessor);
-			entry.Value = entry.MainAccessor.Persisted(() => (T)null);
-			loaded[i] = entry;
-			int d = System.Threading.Interlocked.Increment(ref done);
-			if ((d & 0x1F) == 0 || d == entries.Count)
-			{
-				progress.Report(d, entries.Count);
-			}
-		});
-		// Phase 2 — serial fill preserves duplicate detection and insertion order.
+		// NOTE: parsing here must stay SERIAL. A Parallel.For over the JSON
+		// deserialization was measured 2.3× SLOWER (6772ms vs 2948ms for .pac) on
+		// Unity's Mono/Boehm runtime — allocation-heavy work from many threads
+		// contends on the GC's global allocation lock, and the 7 repositories
+		// already load concurrently on their own tasks.
 		for (int i = 0; i < entries.Count; i++)
 		{
 			VirtIOEntry e2 = entries[i];
 			string id = e2.Name.Substring(0, e2.Name.Length - ext.Length);
 			if (CustomSceneFeature.VerboseSceneLogging?.Value == true)
 				logger.Info("[SceneLog] Repository<{0}> loading [{1}/{2}]: {3}", typeof(T).Name, i + 1, entries.Count, e2.Name);
-			DataEntry<T> entry = loaded[i];
+			DataEntry<T> entry = new DataEntry<T>(e2.Accessors, e2.WriteAccessor);
+			entry.Value = entry.MainAccessor.Persisted(() => (T)null);
 			if (entry.Value != null)
 			{
 				entry.Value.Id = id;
@@ -149,8 +135,11 @@ public class Repository<T> where T : Stored
 				SceneWarnings.Instance.Report("Duplicate asset found. Id: {0}. Path 1: {1}. Path 2: {2}", id, path1, path2);
 			}
 			data[id] = entry;
+			if ((i & 0x1F) == 0 || i + 1 == entries.Count)
+			{
+				progress.Report(i + 1, entries.Count);
+			}
 		}
-		progress.Report(entries.Count, entries.Count);
 	}
 
 	private void EnsureLoaded()

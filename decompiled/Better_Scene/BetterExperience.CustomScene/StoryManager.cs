@@ -46,6 +46,10 @@ public class StoryManager : PluginService
 
 		private IEnumerator LoaderThread()
 		{
+			// [LoadPerf] realtime stamps bracket the loading screen so log line
+			// ordering + t= values reveal any post-loader "black gap" before the
+			// story script makes the world visible.
+			Logger.Global.Warn("[LoadPerf] t={0:F2}s loader SHOWN", Time.realtimeSinceStartup);
 			loadingScreen.SetLoaderEnabled(true);
 			loaderWnd.SetVisible(value: true);
 			active = true;
@@ -58,6 +62,7 @@ public class StoryManager : PluginService
 					yield return ProcessOperation(it.Current);
 				}
 			}
+			Logger.Global.Warn("[LoadPerf] t={0:F2}s loader HIDDEN", Time.realtimeSinceStartup);
 			loadingScreen.SetLoaderEnabled(false);
 			loaderWnd.SetVisible(value: false);
 			active = false;
