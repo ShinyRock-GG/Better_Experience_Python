@@ -35,6 +35,12 @@ public class PyStoryRuntimeService : StoryService
 
 	private bool importAllScriptsMode;
 
+	// pycs.background_boot manifest option: boot the engine WITHOUT gating the
+	// loading screen — precompile/imports run on a background task after the
+	// stage scope is created, and Start3 fires on the main thread when done.
+	// Pairs with pycs.stage=scene to hide the python boot in menu idle time.
+	private bool backgroundBootMode;
+
 	private ScriptingStage stage;
 
 	private ScopeSupport scriptingStageScope;
@@ -72,6 +78,11 @@ public class PyStoryRuntimeService : StoryService
 		if (!Enum.TryParse<ScriptingStage>(DiccEXT.GetValueNotNull<string, string>((IDictionary<string, string>)base.Story.MainPackage.Manifest.options, "pycs.stage", "interview"), out stage))
 		{
 			stage = ScriptingStage.interview;
+		}
+		bool.TryParse(DiccEXT.GetValueNotNull<string, string>((IDictionary<string, string>)base.Story.MainPackage.Manifest.options, "pycs.background_boot", "false"), out backgroundBootMode);
+		if (backgroundBootMode)
+		{
+			logger.Info("PYCS background boot enabled — python engine will not gate the loading screen");
 		}
 		if (stage == ScriptingStage.scene)
 		{
@@ -145,8 +156,30 @@ public class PyStoryRuntimeService : StoryService
 		dialogueManager.SetActive(value: false);
 		Start1_Sync();
 		AsyncTask task = Start2_Async();
+		if (backgroundBootMode)
+		{
+			// Fire-and-forget: precompile/imports run on their background task
+			// without joining the loader queue (loading screen closes on time);
+			// Start3 runs on the main thread via coroutine once they finish.
+			logger.Warn("[LoadPerf] t={0:F2}s python background boot started (not gating loader)", UnityEngine.Time.realtimeSinceStartup);
+			Lookup<DispatcherService>().StartCoroutine(BackgroundBootThenStart3(task), scriptingStageScope);
+			return;
+		}
 		task.OnComplete = Start3_Sync;
 		storyManager.ScheduleTask(task);
+	}
+
+	private IEnumerator BackgroundBootThenStart3(AsyncTask task)
+	{
+		while (!task.Task.IsCompleted)
+		{
+			yield return null;
+		}
+		if (task.Task.IsFaulted)
+		{
+			logger.Error("Background python preload faulted: {0}", task.Task.Exception?.Flatten().InnerException);
+		}
+		Start3_Sync();
 	}
 
 	private AsyncTask Start2_Async()
