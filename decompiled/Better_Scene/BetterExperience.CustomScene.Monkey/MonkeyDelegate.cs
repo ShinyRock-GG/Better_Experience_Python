@@ -67,41 +67,62 @@ internal class MonkeyDelegate : SessionService
 
 	private IEnumerator LoadMonkeyBundleAsync(string path)
 	{
-		AssetBundle assetBundle;
-		if (!LoadedAssetBundles.TryGetValue(path, out var abi))
+		// Unity time-slices async load integration by backgroundLoadingPriority
+		// (default BelowNormal ≈ 4ms/frame), which drip-feeds a 389MB streamed
+		// scene bundle over many seconds even on NVMe. The loading screen is up
+		// for this entire coroutine, so raise the budget (High ≈ 50ms/frame) and
+		// restore the previous value when done.
+		ThreadPriority prevLoadPrio = Application.backgroundLoadingPriority;
+		Application.backgroundLoadingPriority = ThreadPriority.High;
+		try
 		{
-			AssetBundleCreateRequest req = AssetBundle.LoadFromFileAsync(path);
-			yield return new AssetLoader.AsyncWrapper(req, "MonkeyBridge: loading asset");
-			assetBundle = req.assetBundle;
-			if (assetBundle != null)
+			// Phase timing so LogOutput.log shows where scene-load wall clock goes.
+			System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+			AssetBundle assetBundle;
+			if (!LoadedAssetBundles.TryGetValue(path, out var abi))
 			{
-				LoadedAssetBundles.Add(path, new AssetManager.BundleInfo(assetBundle, AssetIdRef++));
+				AssetBundleCreateRequest req = AssetBundle.LoadFromFileAsync(path);
+				yield return new AssetLoader.AsyncWrapper(req, "MonkeyBridge: loading asset");
+				assetBundle = req.assetBundle;
+				logger.Warn("[MonkeyPerf] LoadFromFileAsync({0}) took {1}ms", Path.GetFileName(path), sw.ElapsedMilliseconds);
+				if (assetBundle != null)
+				{
+					LoadedAssetBundles.Add(path, new AssetManager.BundleInfo(assetBundle, AssetIdRef++));
+				}
+				else
+				{
+					logger.Error("Unable to load asset bundle {0}", path);
+				}
 			}
 			else
 			{
-				logger.Error("Unable to load asset bundle {0}", path);
+				assetBundle = abi.ab;
 			}
+			if (!(assetBundle != null))
+			{
+				yield break;
+			}
+			if (assetBundle.isStreamedSceneAssetBundle)
+			{
+				sw.Restart();
+				AsyncOperation scenereq = SceneManager.LoadSceneAsync(Path.GetFileNameWithoutExtension(assetBundle.GetAllScenePaths()[0]), new LoadSceneParameters(LoadSceneMode.Additive));
+				yield return new AssetLoader.AsyncWrapper(scenereq, "MonkeyBridge: loading scene");
+				logger.Warn("[MonkeyPerf] Additive scene load took {0}ms", sw.ElapsedMilliseconds);
+				yield break;
+			}
+			sw.Restart();
+			AssetBundleRequest assetreq = ((assetBundle != null) ? assetBundle.LoadAllAssetsAsync<GameObject>() : null);
+			yield return new AssetLoader.AsyncWrapper(assetreq, "MonkeyBridge: loading all assets");
+			Object[] array = assetreq.allAssets;
+			for (int i = 0; i < array.Length; i++)
+			{
+				Object.Instantiate((GameObject)array[i], monkey.transform).hideFlags |= HideFlags.HideAndDontSave;
+			}
+			logger.Warn("[MonkeyPerf] LoadAllAssets+Instantiate({0}) took {1}ms", array.Length, sw.ElapsedMilliseconds);
 		}
-		else
+		finally
 		{
-			assetBundle = abi.ab;
-		}
-		if (!(assetBundle != null))
-		{
-			yield break;
-		}
-		if (assetBundle.isStreamedSceneAssetBundle)
-		{
-			AsyncOperation scenereq = SceneManager.LoadSceneAsync(Path.GetFileNameWithoutExtension(assetBundle.GetAllScenePaths()[0]), new LoadSceneParameters(LoadSceneMode.Additive));
-			yield return new AssetLoader.AsyncWrapper(scenereq, "MonkeyBridge: loading scene");
-			yield break;
-		}
-		AssetBundleRequest assetreq = ((assetBundle != null) ? assetBundle.LoadAllAssetsAsync<GameObject>() : null);
-		yield return new AssetLoader.AsyncWrapper(assetreq, "MonkeyBridge: loading all assets");
-		Object[] array = assetreq.allAssets;
-		for (int i = 0; i < array.Length; i++)
-		{
-			Object.Instantiate((GameObject)array[i], monkey.transform).hideFlags |= HideFlags.HideAndDontSave;
+			Application.backgroundLoadingPriority = prevLoadPrio;
 		}
 	}
 }
