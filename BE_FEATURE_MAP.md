@@ -10,6 +10,7 @@ Method: static verdicts per BE-2 (dormancy query); live verdicts via manual prob
 | AutoSeeker | WORKS-DEGRADED | Live test 2026-08-05 (owner): functions, but mis-locates penis tip — on NATIVE MALE bodies too, not futa-specific | Cause is BE-internal. Leading hypothesis: worldOutHole direction-vs-position misuse (the exact bug AIChat.s AutoSeekEngine port had to fix — check BE source for the same pattern). FIXABLE-KNOWN-FIX candidate: backport the worldOutHole fix from AIChat.s AutoSeekEngine port. Public release cannot assume AIChat. |
 | PlayerPosture (bending), Story IK services | enabled + no errors observed in live session | passive observation only | not yet actively tested |
 | EmoSpy | WORKS | Live test 2026-08-05 (batch 1): overlay appears, functioning per owner; zero log errors | — |
+| DragControl | WORKS | Owner-confirmed 2026-08-05 (batch 1) | — |
 | MissionControl | WORKS / DRIFTED-TUNING | Owner (prior + batch 1): window works; backthrust bound likely TOO LOW for 23.1's new entrance-resistance mechanic | COUPLED: MissionControl is the control UI FOR AutoThrust (owner 2026-08-05) — the backthrust bound is AutoThrust tuning. Fix as ONE feature set with the AutoThrust backport: port AIChat thrust findings + re-derive bounds against 23.1 entrance resistance. KEYBIND CONFLICT found: MissionControl key collides with ScriptEngine ReloadKey F6 (pressing it hot-loads FutaConversion) — ScriptEngine rebound to F9 (config, 2026-08-05). |
 
 ## Release doctrine (owner, 2026-08-05)
@@ -30,3 +31,6 @@ BE is being fixed FOR THE PUBLIC, not for this install. Consequences:
   (absent from Unity Mono) → 3x TypeLoadException during HarmonyX assembly scan. PyStory
   likely degraded at Xaml-dependent edges. Additional evidence for Better_Story + pydlr
   removal (BE_DEPENDENCY_TRUTH §4).
+- PARKED: ScriptEngine ReloadKey rebound F6→F9 in config, but a fresh boot still hot-loaded
+  FutaConversion on F6 (owner, 2026-08-05). Not adjudicated — deprioritized by owner.
+  Candidates when someone cares: ScriptEngine version ignores cfg / another F6 listener.
