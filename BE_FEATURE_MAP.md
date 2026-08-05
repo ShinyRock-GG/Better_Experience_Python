@@ -69,3 +69,16 @@ to attribute them; the harness cheapens observation, not restarts.
   purposes (futa penetrado positioning — see FutaConversion BACKLOG). TWO TRACKS: public
   BE release ships stock-behavior sit/kneel (fixed if broken); the heavy modification is
   owner-direction work, separate scope, possibly a BE fork/extension feature.
+
+### Batch-2 incident RESOLVED (2026-08-05, owner-confirmed)
+
+Contortion completely absent with full IK cluster on and GuestSelfCollision off.
+**VERDICT: GuestSelfCollision = BROKEN-PHYSICS — convicted by elimination** (two runs:
+trio-on = contortion + NPC hand twitch; IK-cluster-on/self-collision-off = completely
+clean). Both symptoms (player spine hyperextension AND NPC hand twitch) attribute to it —
+the split hypothesis was wrong, the all-IK hypothesis was wrong; it was self-collision all
+along, including the player-side effect. Mechanism (unverified but classic): overlapping
+rig colliders at rest fight per physics substep (~4x/frame in Script mode).
+Rows final: SitIK/KneelIK/HandsOffset EXONERATED (rows above stand: subtle, modify-track);
+GuestSelfCollision = BROKEN-PHYSICS, keep OFF, fix session = collider-matrix work (likely
+needs per-bone collision-layer exclusions for adjacent/overlapping colliders).
