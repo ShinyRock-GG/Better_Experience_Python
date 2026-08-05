@@ -9,6 +9,7 @@ Method: static verdicts per BE-2 (dormancy query); live verdicts via manual prob
 | AutoThrust | FIXABLE-KNOWN-FIX | Owner 2026-08-05: solved by findings AIChat implemented in its ThrustEngine port | BACKPORT the fix into BE — release target is the public (no AIChat assumed). |
 | AutoSeeker | WORKS-DEGRADED | Live test 2026-08-05 (owner): functions, but mis-locates penis tip — on NATIVE MALE bodies too, not futa-specific | Cause is BE-internal. Leading hypothesis: worldOutHole direction-vs-position misuse (the exact bug AIChat.s AutoSeekEngine port had to fix — check BE source for the same pattern). FIXABLE-KNOWN-FIX candidate: backport the worldOutHole fix from AIChat.s AutoSeekEngine port. Public release cannot assume AIChat. |
 | PlayerPosture (bending), Story IK services | enabled + no errors observed in live session | passive observation only | not yet actively tested |
+| EmoSpy | WORKS | Live test 2026-08-05 (batch 1): overlay appears, functioning per owner; zero log errors | — |
 
 ## Release doctrine (owner, 2026-08-05)
 
@@ -21,3 +22,10 @@ BE is being fixed FOR THE PUBLIC, not for this install. Consequences:
    debugging, full telemetry), then (b) clean validation pass — BE + Monkey only, vanilla
    0.23.1_f1, LogOutput + visual only — before any release. A feature is not "fixed" until
    it passes (b).
+
+## Live findings log (batch 1, 2026-08-05)
+
+- IronPython strand throws at boot in this runtime: Microsoft.Dynamic requires System.Xaml
+  (absent from Unity Mono) → 3x TypeLoadException during HarmonyX assembly scan. PyStory
+  likely degraded at Xaml-dependent edges. Additional evidence for Better_Story + pydlr
+  removal (BE_DEPENDENCY_TRUTH §4).
