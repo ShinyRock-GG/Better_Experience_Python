@@ -1,0 +1,11 @@
+# BE Feature Map — verdicts (seeded by live testing 2026-08-05; BE-2 fills the rest)
+
+Method: static verdicts per BE-2 (dormancy query); live verdicts via manual probe protocol
+(owner triggers, Claude watches :8901/logs). See BE_DEPENDENCY_TRUTH.md for evidence base.
+
+| Feature | Verdict | Evidence | Notes |
+|---|---|---|---|
+| Alternative Genetics, Autorating, Alternative Ratings, Single Group Mode, Auto Training | OBSOLETE-MISTARGETED | BE_DEPENDENCY_TRUTH §8 (dormancy: legacy Base.Genetica 7 game-refs vs live TValle Alteradores 109) | CUT. Auto Training additionally save-corrupting. Not live-tested (deliberately). |
+| AutoThrust | OBSOLETE-SUPERSEDED | Owner-confirmed live 2026-08-05: AIChat ThrustEngine replaces it | CUT (disable permanently). |
+| AutoSeeker | WORKS-DEGRADED | Live test 2026-08-05: functions, but mis-locates penis tip | Context: tested on FUTA-CONVERTED body (runtime graft pene). Hypotheses: (a) graft transform/scale ≠ native pene refs (see FutaConversion knowledge: graft scale model, player pene machinery dead on swapped body); (b) worldOutHole direction-vs-position misuse (the bug AIChat's port fixed). A/B on native male body pending. Possibly OBSOLETE-SUPERSEDED too (AIChat AutoSeekEngine exists) — owner call. |
+| PlayerPosture (bending), Story IK services | enabled + no errors observed in live session | passive observation only | not yet actively tested |
