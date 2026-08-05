@@ -56,3 +56,16 @@ restart B = SitIK alone. Rows meanwhile:
 
 Note: these are restart-bound config flags — even BE-Probe automation needs game restarts
 to attribute them; the harness cheapens observation, not restarts.
+
+### IK-cluster run result (2026-08-05, SitIK+KneelIK+HandsOffset on, self-collision off)
+
+- No spine contortion reported this run (pending explicit owner confirm) → if confirmed,
+  contortion attributes to GuestSelfCollision by elimination; IK cluster exonerated.
+- SitIK/KneelIK: SUBTLE — effects are small foot-placement offsets by design
+  (PlayerPostureFeature.cs:197-215), visually near-invisible during C-crouch lowering.
+  Activation unconfirmed (isSitting/pelvisGrounded conditions may not fire from hover-
+  crouch). Confirmation = BEProbe A/B screenshots or state probe, not eyes.
+- Disposition (owner): even if working, sit/kneel would be HEAVILY MODIFIED for our
+  purposes (futa penetrado positioning — see FutaConversion BACKLOG). TWO TRACKS: public
+  BE release ships stock-behavior sit/kneel (fixed if broken); the heavy modification is
+  owner-direction work, separate scope, possibly a BE fork/extension feature.
