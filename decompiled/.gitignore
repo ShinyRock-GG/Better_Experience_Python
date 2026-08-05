@@ -1,0 +1,5 @@
+bin/
+obj/
+*.7z
+build_output.txt
+

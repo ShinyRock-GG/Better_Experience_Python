@@ -188,3 +188,36 @@ runtime-wired dependencies invisible to static analysis.
   of Better_Story? (It's a separate BepInEx plugin dir, not just a dependency.)
 - Monkey dependency: Better_Scene.dll hard-references Monkey.dll. If Monkey is ever
   removed, Better_Scene breaks. Document this coupling.
+
+## 8. ADDENDUM 2026-08-05 (Fable, full-install graph): genetics dormancy analysis
+
+Section 6's empty worklist compared the WRONG version pair — F: and G: are both 0.23.1_f1
+(hence identical). The real drift is 10.4e (BE's authoring target) → 23.1. Since both current
+installs carry 23.1, drift manifests not as missing APIs (all 1,187 BE→game refs resolve)
+but as DORMANT SYSTEMS: game code the game itself no longer drives.
+
+Method: full-install xref graph (20 assemblies, 97,782 nodes / 293,796 edges). For every
+genetics-flavored game type, count game-internal inbound edges (excluding intra-type and
+intra-genetics edges) vs BE inbound edges.
+
+**Finding — the game has TWO genetics implementations (owner-confirmed architecture):**
+
+| Cluster | game-internal refs | BE refs |
+|---|---|---|
+| `TValle.BeachGirl.Genetica.Alteradores` (current) | 109 | ~0 |
+| `Base.Genetica` (legacy) + `TValle.Pro.Entrevista` rating models | 7 | 41 |
+
+BE's genetics family (Alternative Genetics, Autorating, Alternative Ratings, Single Group
+Mode, Auto Training) is wired to the LEGACY implementation, which current game code barely
+references (interview rating Modelo classes + IConjuntoDeGenes/ISujeto*: ZERO game-internal
+callers). The game rewrote genetics in the TValle Alteradores cluster; BE never followed.
+Auto Training's save-corruption fits: it writes state through the legacy pipeline the
+current game no longer reads coherently.
+
+**Verdict: genetics family = OBSOLETE-MISTARGETED. Recommend CUT, not fix.** A "fix" means
+re-implementing all five features against TValle.BeachGirl.Genetica.Alteradores — a rewrite,
+not a repair.
+
+Caveats before deletion (static blind spots): reflection/Unity-serialization usage is
+invisible to the graph. Confirmation test: disable the five features, run an interview
+scoring flow in-game, verify native rating works and no errors on :8901/unitylog.
