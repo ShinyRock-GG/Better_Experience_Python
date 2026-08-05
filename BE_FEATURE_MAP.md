@@ -39,3 +39,20 @@ BE is being fixed FOR THE PUBLIC, not for this install. Consequences:
 - PARKED: ScriptEngine ReloadKey rebound F6→F9 in config, but a fresh boot still hot-loaded
   FutaConversion on F6 (owner, 2026-08-05). Not adjudicated — deprioritized by owner.
   Candidates when someone cares: ScriptEngine version ignores cfg / another F6 listener.
+
+## Batch-2 physics incident (2026-08-05)
+
+With SitIK + HandsOffset + GuestSelfCollision enabled together: player spine hyperextended
+~90° backward (silent — zero exceptions), NPC hands twitchy. All three disabled → all clear
+(T2 prediction confirmed). ATTRIBUTION PENDING (three flags flipped together — T5):
+cause is within the trio; unknown whether one mechanism (owner hypothesis: all IK-related)
+or two (split hypothesis: posture-IK bends player, self-collision twitches hands).
+Attribution plan: restart A = GuestSelfCollision alone (discriminates both hypotheses);
+restart B = SitIK alone. Rows meanwhile:
+
+| SitIK | SUSPECT — in broken trio | batch-2 incident | off pending attribution |
+| HandsOffset | SUSPECT — in broken trio | batch-2 incident | off pending attribution |
+| GuestSelfCollision | SUSPECT — in broken trio | batch-2 incident | off pending attribution |
+
+Note: these are restart-bound config flags — even BE-Probe automation needs game restarts
+to attribute them; the harness cheapens observation, not restarts.
