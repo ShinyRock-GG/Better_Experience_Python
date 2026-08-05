@@ -11,6 +11,9 @@ Method: static verdicts per BE-2 (dormancy query); live verdicts via manual prob
 | PlayerPosture (bending), Story IK services | enabled + no errors observed in live session | passive observation only | not yet actively tested |
 | EmoSpy | WORKS | Live test 2026-08-05 (batch 1): overlay appears, functioning per owner; zero log errors | — |
 | DragControl | WORKS | Owner-confirmed 2026-08-05 (batch 1) | — |
+| NotAMic | WORKS | Owner-validated 2026-08-05 (batch 1) | — |
+| AmateurModel | WORKS | Owner-validated 2026-08-05 (batch 1) | — |
+| NoMeansNo | UNRESOLVED — hard to invoke | The trigger condition (the "want me to leave?" prompt) is hard to produce on demand | Absence-test; needs the prompt's trigger conditions from source to provoke deliberately, or extended passive play. Not blocking. |
 | VelocityControl | DRIFTED — old math | Owner 2026-08-05: functions, but clamps values from the pre-23.1 motion math; needs redo against the new (entrance-resistance era) computation | Owner: documentation exists on why — locate it in the fix session (likely the AIChat thrust/resistance findings or the F: trove). Fix belongs with the AutoThrust+MissionControl cluster: same math, one session. |
 | MissionControl | WORKS / DRIFTED-TUNING | Owner (prior + batch 1): window works; backthrust bound likely TOO LOW for 23.1's new entrance-resistance mechanic | COUPLED: MissionControl is the control UI FOR AutoThrust (owner 2026-08-05) — the backthrust bound is AutoThrust tuning. Fix as ONE feature set with the AutoThrust backport: port AIChat thrust findings + re-derive bounds against 23.1 entrance resistance. KEYBIND CONFLICT found: MissionControl key collides with ScriptEngine ReloadKey F6 (pressing it hot-loads FutaConversion) — ScriptEngine rebound to F9 (config, 2026-08-05). |
 
