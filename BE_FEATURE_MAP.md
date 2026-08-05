@@ -12,6 +12,7 @@ Method: static verdicts per BE-2 (dormancy query); live verdicts via manual prob
 | EmoSpy | WORKS | Live test 2026-08-05 (batch 1): overlay appears, functioning per owner; zero log errors | — |
 | DragControl | WORKS | Owner-confirmed 2026-08-05 (batch 1) | — |
 | NotAMic | WORKS | Owner-validated 2026-08-05 (batch 1) | — |
+| BetterHand | WORKS | Owner-validated 2026-08-05 (batch 1) | — |
 | AmateurModel | WORKS | Owner-validated 2026-08-05 (batch 1) | — |
 | NoMeansNo | UNRESOLVED — hard to invoke | The trigger condition (the "want me to leave?" prompt) is hard to produce on demand | Absence-test; needs the prompt's trigger conditions from source to provoke deliberately, or extended passive play. Not blocking. |
 | VelocityControl | DRIFTED — old math | Owner 2026-08-05: functions, but clamps values from the pre-23.1 motion math; needs redo against the new (entrance-resistance era) computation | Owner: documentation exists on why — locate it in the fix session (likely the AIChat thrust/resistance findings or the F: trove). Fix belongs with the AutoThrust+MissionControl cluster: same math, one session. |
