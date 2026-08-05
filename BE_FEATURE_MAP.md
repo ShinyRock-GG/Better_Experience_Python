@@ -10,6 +10,7 @@ Method: static verdicts per BE-2 (dormancy query); live verdicts via manual prob
 | AutoSeeker | WORKS-DEGRADED | Live test 2026-08-05 (owner): functions, but mis-locates penis tip — on NATIVE MALE bodies too, not futa-specific | Cause is BE-internal. Leading hypothesis: worldOutHole direction-vs-position misuse (the exact bug AIChat.s AutoSeekEngine port had to fix — check BE source for the same pattern). FIXABLE-KNOWN-FIX candidate: backport the worldOutHole fix from AIChat.s AutoSeekEngine port. Public release cannot assume AIChat. |
 | PlayerPosture (bending), Story IK services | enabled + no errors observed in live session | passive observation only | not yet actively tested |
 | EmoSpy | WORKS | Live test 2026-08-05 (batch 1): overlay appears, functioning per owner; zero log errors | — |
+| MissionControl | WORKS / DRIFTED-TUNING | Owner (prior + batch 1): window works; backthrust bound likely TOO LOW for 23.1's new entrance-resistance mechanic | Tuning-range drift vs a new game mechanic, not broken code. Fix: raise/re-derive backthrust bound against entrance resistance. KEYBIND CONFLICT found: MissionControl key collides with ScriptEngine ReloadKey F6 (pressing it hot-loads FutaConversion) — ScriptEngine rebound to F9 (config, 2026-08-05). |
 
 ## Release doctrine (owner, 2026-08-05)
 
