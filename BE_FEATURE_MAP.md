@@ -91,3 +91,4 @@ needs per-bone collision-layer exclusions for adjacent/overlapping colliders).
 
 Note for harness protocol: BEProbe filenames/timestamps are UTC; local is UTC-4. Compare
 mtimes in one timezone (the maiden session confused itself for a few minutes).
+| GeneTool | WORKS (prediction refuted) | Screenshot-verified 2026-08-05: window opens (hotkey F5, NOT F7 as inventoried), fully populated live gene sliders (alterador-layer names, sane 0-1 values), tabs/filter/batch/watch UI intact | KEY INSIGHT: GeneTool fronts the LIVE TValle alterador morph layer — NOT the dormant Base.Genetica cluster its 5 sibling genetics features target. It escapes the family OBSOLETE verdict. Full functional test (slider→model change) pending owner/harness. Cosmetic: EmoSpy overlay text z-fights the GeneTool window. Cross-instrument note: EmoSpy shows native ConsentToHero=33, matching AIChat emodiag exactly. |
