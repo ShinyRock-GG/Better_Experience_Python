@@ -35,5 +35,17 @@ Copy-Item -Force "$BASE\Better_Cloth\bin\Release\net472\Better_Cloth.dll"       
 Copy-Item -Force "$BASE\Better_Scene\bin\Release\net472\Better_Scene.dll"        $PLUGIN
 Copy-Item -Force "$BASE\Better_Story\bin\Release\net472\Better_Story.dll"        $PLUGIN
 
+# Release packages (Lite/Standard/Full zips with license gate) — pass -NoRelease to skip.
+# The packager reuses this build's outputs (-SkipBuild); failures there don't undo the
+# DLL deploy above, but DO fail loudly (license gate / forbidden-content check).
+if ($args -notcontains "-NoRelease") {
+    Write-Host ""
+    Write-Host "Packaging release tiers..." -ForegroundColor Cyan
+    & pwsh -File "$PLUGIN\release\make-release.ps1" -Tier All -SkipBuild
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "RELEASE PACKAGING FAILED (build + deploy still OK above)" -ForegroundColor Red
+    }
+}
+
 Write-Host "Done." -ForegroundColor Green
 Read-Host "Press Enter to exit"
