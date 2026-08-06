@@ -96,3 +96,8 @@ mtimes in one timezone (the maiden session confused itself for a few minutes).
 | SceneCamera | DEFERS-TO-MONKEY (by design) | Plugin.cs:88 `if (!MonkeyMode)` — never registered when Monkey present; confirmed live (absent from BEProbe /features registry, X inert) | NOT broken. But since Better_Scene HARD-REQUIRES Monkey, SceneCamera is unreachable dead code in any Better_Scene install — for release: either drop it or keep for core-only (no Better_Scene) users. Owner uses MonkeyFlyCamera. |
 | PlayerScaler | DEFERS-TO-MONKEY (by design) | same `!MonkeyMode` gate (Plugin.cs:93); Monkey [K] Scale covers it | same disposition as SceneCamera. |
 | NaturalLanguage | DOCK OPENS BUT INVISIBLE — occlusion hypothesis LEADING, not proven | PROVEN chain: Session.Guest non-null (GuestIO GenericExport would return "no one to export" on null; it wrote files) → Enter unconditionally sets dock.Visible=true (line 77) → dock registered with OverlayService → absent from screenshot. Remaining candidates: occluded behind AIChat.s bottom-center bar (same DockingContainer anchor) OR silent draw failure | Discriminator: blind-type test (Enter, phrase, Enter → HeadController.Say reply = functional+occluded) or clean-environment run (no AIChat). Cross-mod UI overlap goes to conflicts inventory as POTENTIAL regardless. |
+- NL blind-type discriminator run (owner, 2026-08-05): typed phrase + Enter → NO reply.
+  Code says any received input yields at least Say("What?") on no-match → text never
+  reached the dock. FINAL ensemble verdict: **NL UNUSABLE-IN-ENSEMBLE** (input never
+  arrives — AIChat key/focus capture or dock focus failure; indistinguishable and
+  practically equivalent here). Standalone functionality → clean-environment pass.
