@@ -82,3 +82,12 @@ rig colliders at rest fight per physics substep (~4x/frame in Script mode).
 Rows final: SitIK/KneelIK/HandsOffset EXONERATED (rows above stand: subtle, modify-track);
 GuestSelfCollision = BROKEN-PHYSICS, keep OFF, fix session = collider-matrix work (likely
 needs per-bone collision-layer exclusions for adjacent/overlapping colliders).
+
+### First AUTOMATED verdicts (2026-08-05 evening, via BEProbe — no owner input)
+
+| GuestIO | WORKS | /invoke CommandExport (nested GIOService) → "Wrote file" x2; fresh valid JSON dumps in Better_Exchange (18.7KB appearance + 87.8KB personality) with guest present | Console-command driven (gio export/import/backup/eve/randomize) + optional dumpOnArrive. Fully harness-testable. |
+| LexiconProcessor (+Conv) | WORKS | Boot-time export: conversations.json 7.2MB (553 entries), words.json 1.3MB (21), expressions.json, body_parts.json — all valid JSON | Data quirk: words.json contains one EMPTY-STRING key (legal JSON; possible empty word entry upstream — minor). Process() re-invoke is a no-op when nothing changed (by design). |
+| NaturalLanguage | ENABLED, untested | active this boot, no errors | needs typed <Enter> input in-game — owner or future input-injection. |
+
+Note for harness protocol: BEProbe filenames/timestamps are UTC; local is UTC-4. Compare
+mtimes in one timezone (the maiden session confused itself for a few minutes).
