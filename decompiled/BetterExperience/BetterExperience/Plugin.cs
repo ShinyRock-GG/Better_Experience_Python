@@ -6,7 +6,6 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BetterExperience.Features;
-using BetterExperience.Features.AlternativeRating;
 using BetterExperience.Features.Console;
 using BetterExperience.Features.GeneTool;
 using BetterExperience.Features.Overlay;
@@ -89,7 +88,6 @@ public class Plugin : BaseUnityPlugin
 		{
 			PluginScope.AddService(new SceneCameraFeature());
 		}
-		PluginScope.AddService(new AlternativeGeneticsFeature());
 		if (!MonkeyMode)
 		{
 			PluginScope.AddService(new PlayerScaler());
@@ -113,9 +111,6 @@ public class Plugin : BaseUnityPlugin
 		PluginScope.AddService(new LexiconProcessorFeature());
 		PluginScope.AddService(new AutoSeekerFeature());
 		PluginScope.AddService(new PlayerPostureFeature());
-		PluginScope.AddService(new AutoRateGuestFeature());
-		PluginScope.AddService(new AutoratingFeature());
-		PluginScope.AddService(new AutotrainingFeature());
 		PluginScope.AddService(new SafetyNetFeature());
 		PluginScope.AddService(new RunInBackgroundFeature());
 	}
