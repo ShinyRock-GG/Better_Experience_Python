@@ -101,3 +101,9 @@ mtimes in one timezone (the maiden session confused itself for a few minutes).
   reached the dock. FINAL ensemble verdict: **NL UNUSABLE-IN-ENSEMBLE** (input never
   arrives — AIChat key/focus capture or dock focus failure; indistinguishable and
   practically equivalent here). Standalone functionality → clean-environment pass.
+- Refinement (owner: AIChat's bar does NOT capture unfocused keystrokes): NL auto-focuses
+  its field ON DRAW (RequestFocus → GUI.FocusControl inside the draw path). If the dock
+  were drawn-but-occluded it would hold focus and reply "What?" to any input. Silence
+  therefore DISFAVORS occlusion → leading mechanism: **dock draw never executes**
+  (Visible=true but OverlayService never renders it — draw/scope registration failure
+  class). Clean-environment pass still discriminates standalone behavior.
