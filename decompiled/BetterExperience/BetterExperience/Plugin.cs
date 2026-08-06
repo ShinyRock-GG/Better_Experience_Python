@@ -113,6 +113,7 @@ public class Plugin : BaseUnityPlugin
 		PluginScope.AddService(new PlayerPostureFeature());
 		PluginScope.AddService(new SafetyNetFeature());
 		PluginScope.AddService(new RunInBackgroundFeature());
+		PluginScope.AddService(new ResolutionFixFeature());
 	}
 
 	public T AddService<T>(T instance) where T : PluginService
