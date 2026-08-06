@@ -221,3 +221,24 @@ not a repair.
 Caveats before deletion (static blind spots): reflection/Unity-serialization usage is
 invisible to the graph. Confirmation test: disable the five features, run an interview
 scoring flow in-game, verify native rating works and no errors on :8901/unitylog.
+
+## 9. CORRECTION 2026-08-05 (owner-caught, post-cut-session): Better_Story is LOAD-BEARING
+
+§4/§7's "CUT Better_Story + pydlr" recommendation was WRONG for this install and executed
+in error (restored within minutes): **Better_Story's PyStory runtime is how AlmostSentient
+loads** — the live Python behavior package (Packages/rock.almostsentient.be, its own repo,
+core ecosystem mod: phone UI, gaze, lighting, navigation) runs ON the IronPython/PyStory
+stack. "Loss of py-scripted story features" in §4 IS AlmostSentient.
+
+Standing verdicts corrected:
+- Better_Story + pydlr: **KEEP — load-bearing infrastructure for AlmostSentient.**
+- IronPython dependency: not accidental-removable; it is AlmostSentient's runtime. The
+  System.Xaml TypeLoadExceptions at boot remain a real wart — fixable by shipping/stubbing
+  System.Xaml or trimming the scan, NOT by removal.
+- The genetics-family cut (this session, commit 729e333) is UNAFFECTED and stands.
+
+Process lesson (the owner had just said "we need to figure out the interdependencies too"):
+plugin→PACKAGE dependencies (Better_Story → Packages/rock.almostsentient.be) are invisible
+to the assembly-reference graph — the xref extractor sees DLL edges, not "this plugin
+executes that directory of Python." The interdependency pass must include runtime loader
+relationships, declared per-mod in the registry. Registry updated accordingly.
