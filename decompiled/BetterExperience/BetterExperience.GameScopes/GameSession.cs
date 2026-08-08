@@ -168,6 +168,42 @@ public class GameSession
 		}
 	}
 
+	/// <summary>
+	/// Tear the guest down if its character has been DESTROYED without the presence event firing.
+	/// Returns true if it did.
+	///
+	/// WHY THIS EXISTS. <see cref="GuestPresenceChanged"/> already does the correct thing — null the
+	/// guest, announce it, dispose the scope — but it only runs on femalePresenciaChanged from the
+	/// tracked interview object. Bringing in a second model destroys the character WITHOUT
+	/// satisfying that condition, so the guest scope is never disposed and every per-guest service
+	/// keeps running against a dead character. The reference graph counts 57 call sites reading
+	/// Guest.Impl across four assemblies; each is a latent crash, and ScopeSupport disposes the
+	/// offending scope PERMANENTLY, so the feature does not come back for the rest of the session.
+	///
+	/// Guarding Impl to return null on destruction makes that state visible — but visible is not
+	/// handled: those services should no longer exist. This watches the CONDITION instead of
+	/// trusting one event to announce it.
+	/// </summary>
+	public bool DropGuestIfDestroyed()
+	{
+		if (currentFemale == null || currentFemale.Impl != null)
+		{
+			return false;
+		}
+		GuestCharacter copy = currentFemale;
+		currentFemale = null;
+		try
+		{
+			this.OnGuestLeft(copy);
+		}
+		catch (Exception)
+		{
+			// A failing subscriber must not prevent the disposal below — that is the whole point.
+		}
+		copy.Scope.Dispose();
+		return true;
+	}
+
 	public void TerminateInterview()
 	{
 		if (interview != null && interview.femalePresencia == EntrevistaConFemale.FemalePresencia.presente)

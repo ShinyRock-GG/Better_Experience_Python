@@ -46,13 +46,100 @@ public class GuestCharacter
 
 	public ComboGestureController GesturesController { get; private set; }
 
-	public FemaleChar Impl { get; }
+	private readonly FemaleChar _impl;
+
+	/// <summary>
+	/// The guest character, or NULL once it has been destroyed.
+	///
+	/// THIS IS THE CHOKE POINT FOR THE WHOLE DESTROYED-GUEST PROBLEM. The reference graph shows
+	/// 57 call sites reading this property, spread across BetterExperience, Better_Cloth,
+	/// Better_Scene and Better_Story — and every one of them dereferences it immediately.
+	///
+	/// Bringing in a second model destroys the outgoing character while the session still holds
+	/// this reference. A destroyed Unity object is NOT a null reference: the managed wrapper
+	/// survives, so `Impl != null` used to return TRUE and the next member access threw a
+	/// NullReferenceException from native code. That escapes into whichever subscriber touched it,
+	/// ScopeSupport disposes that scope PERMANENTLY, and a routine model change silently kills
+	/// features for the rest of the session — observed on ClothRemovalService, AutoThrustService
+	/// and AutoSeekerService, each time with the real cause buried under a second exception thrown
+	/// by the crash handler's own modal.
+	///
+	/// Returning null when the object is destroyed does not make the 57 call sites safe by itself,
+	/// but it makes the state DETECTABLE and uniform: `Impl != null` and `Impl?.` now mean what
+	/// they appear to mean, everywhere, instead of only at the sites that happen to have been
+	/// hardened. Fixing it here rather than at each caller is the difference between one guard and
+	/// fifty-seven.
+	/// </summary>
+	public FemaleChar Impl => IsAlive(_impl) ? _impl : null;
+
+	/// <summary>
+	/// Is this component actually usable, i.e. will touching its members work?
+	///
+	/// `c != null` is SUPPOSED to answer this — Unity overloads == to report destroyed objects as
+	/// null — and it demonstrably did not here: a build with that guard in place still threw
+	/// NullReferenceException from get_gameObject inside get_RootObject, which means the check
+	/// passed on an object whose native side was already gone. The lifecycle watchdog uses the same
+	/// test, so it stayed silent for the same reason.
+	///
+	/// Rather than keep reasoning about when the operator does and does not apply, ASK THE OBJECT.
+	/// Touching gameObject is the exact operation the callers perform, so if it succeeds here it
+	/// will succeed for them; if it throws, the answer is no. The try/catch runs on a property read
+	/// that is already doing native interop, and only pays the exception cost in the failure case,
+	/// which is by definition rare and currently fatal.
+	/// </summary>
+	private static bool IsAlive(Component c)
+	{
+		if (c == null)
+		{
+			return false;
+		}
+		try
+		{
+			return c.gameObject != null;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
 
 	public GuestInstance GuestInstance { get; private set; }
 
 	public RadialMenu RadialMenu { get; private set; }
 
-	public GameObject RootObject => Impl.gameObject;
+	/// <summary>
+	/// The guest's root GameObject, or null once the character has been destroyed.
+	///
+	/// WHY THE GUARD. <c>Impl.gameObject</c> throws a NullReferenceException from native code the
+	/// moment Impl is a DESTROYED component — which is the normal state while a second model is
+	/// being brought in, because the session still holds the outgoing guest. A destroyed Unity
+	/// object is not a null reference (the managed wrapper survives), so nothing upstream catches
+	/// it and the throw escapes into whichever subscriber happened to touch this. Observed taking
+	/// down ClothRemovalService, and by the same route AutoSeeker and AutoThrust. ScopeSupport
+	/// disposes the offending scope PERMANENTLY, so a routine model change silently kills features
+	/// for the rest of the session — and the crash handler's own modal then throws on top, burying
+	/// the cause under a second stack trace.
+	///
+	/// Unity's == operator sees through the destroyed state, so this is checkable once here rather
+	/// than at each of the four call sites, none of which check today.
+	/// </summary>
+	public GameObject RootObject
+	{
+		get
+		{
+			// Belt and braces: Impl is already guarded, but this is the property that was observed
+			// throwing and it has four callers across three assemblies, none of which expect it to.
+			try
+			{
+				FemaleChar impl = Impl;
+				return (impl != null) ? impl.gameObject : null;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+	}
 
 	public LookAtControllerV2 LookAtComponent { get; private set; }
 
@@ -73,7 +160,7 @@ public class GuestCharacter
 	public GuestCharacter(FemaleChar currentFemaleCharacter, ISujetoIdentificableNpc providedGenetics, ScopeSupport parentScope)
 	{
 		GuestCharacter guestCharacter = this;
-		Impl = currentFemaleCharacter;
+		_impl = currentFemaleCharacter;
 		_providedGeneticsChar = providedGenetics;
 		parentScope.AddChild(Scope);
 		DispatcherService dispatcher = Scope.Lookup<DispatcherService>();

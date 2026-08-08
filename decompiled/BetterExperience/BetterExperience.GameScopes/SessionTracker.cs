@@ -57,6 +57,10 @@ public class SessionTracker : PluginService
 	public override void OnStart()
 	{
 		base.OnStart();
+		// GUEST-DESTROYED WATCHDOG. See GameSession.DropGuestIfDestroyed for why the presence event
+		// is not sufficient: a model swap destroys the character without raising it, leaving every
+		// per-guest service alive and pointed at a dead object. One null check per frame.
+		Lookup<DispatcherService>().DoUpdate.Add(WatchGuestDestroyed, base.Scope);
 		SMAGlobalPatches.OnBeforeSave.Add(PreSaveHook, base.Scope);
 		SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 		SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
@@ -67,6 +71,23 @@ public class SessionTracker : PluginService
 		base.OnStop();
 		SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
 		SceneManager.sceneUnloaded -= SceneManager_sceneUnloaded;
+	}
+
+	private void WatchGuestDestroyed()
+	{
+		try
+		{
+			if (_current != null && _current.DropGuestIfDestroyed())
+			{
+				logger.Info("[SessionTracker] guest character was destroyed without a presence "
+					+ "change (model swap) - disposed the guest scope so per-guest services do not "
+					+ "keep running against it");
+			}
+		}
+		catch (Exception e)
+		{
+			base.Scope.NotifyCrash(e);
+		}
 	}
 
 	private void SceneManager_sceneUnloaded(Scene unloadedScene)
