@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using BetterExperience.Features.PluginOptions;
 using BetterExperience.GameScopes;
 using UnityEngine;
 
@@ -13,7 +14,23 @@ internal class RunInBackgroundFeature : PluginFeature
 	public override void Configure(ConfigFile config)
 	{
 		base.Configure(config);
-		enableFeature = config.Bind<bool>("Features", "RunInBackground", false, "RunInBackground: Enable feature");
+		// The description IS the settings-menu label (PluginOptionsService reads
+		// Description.Description), so it has to describe the SYMPTOM. "RunInBackground: Enable
+		// feature" names the flag and tells a player nothing about what it fixes.
+		enableFeature = config.Bind<bool>("Features", "RunInBackground", false,
+			"Keep running when alt-tabbed (without this the game freezes on focus loss)");
+	}
+
+	/// <summary>
+	/// Nothing in this options system auto-enumerates config entries — each is surfaced by an
+	/// explicit Expose call. That is how this setting managed to exist, work, and be
+	/// live-updatable for its entire life while remaining invisible in game: the only way to
+	/// change it was to hand-edit f95.betterexperience.cfg and restart.
+	/// </summary>
+	public override void OnInit()
+	{
+		base.OnInit();
+		Lookup<PluginOptionsService>().Expose(enableFeature, base.Scope);
 	}
 
 	public override void OnStart()

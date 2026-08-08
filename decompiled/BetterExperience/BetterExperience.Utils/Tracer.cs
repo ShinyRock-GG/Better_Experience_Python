@@ -39,6 +39,71 @@ public class Tracer
 		DrawLine(start, end, color, duration);
 	}
 
+	/// <summary>Metres to pull debug lines toward the camera so body meshes stop hiding them.
+	/// Capped at a quarter of the eye distance so close-up lines are not yanked into the lens.
+	/// </summary>
+	public static float OnTopBias = 0.35f;
+
+	private static Material _overlayLineMat;
+
+	/// <summary>
+	/// Material that ignores the depth buffer, so a line stays visible through geometry. This is
+	/// a SECOND material rather than a change to LINEMAT: LINEMAT is shared with every other
+	/// Tracer caller, and AutoSeek's lines should keep occluding normally. A diagnostic line that
+	/// disappears inside a body, however, is useless.
+	/// </summary>
+	private static Material OVERLAYMAT
+	{
+		get
+		{
+			if (_overlayLineMat == null)
+			{
+				// START FROM THE SHADER THAT IS PROVEN TO RENDER. Hidden/Internal-Colored drew
+				// NOTHING here: the caller logged 491 valid readings while producing zero visible
+				// lines, and the same geometry through plain DrawLine had been visible (merely
+				// occluded) the build before. AutoSeek's lines use LINEMAT and work. So this is
+				// LINEMAT's shader with the depth test relaxed on top — if the ZTest override is
+				// not supported the lines are occluded again, which is strictly better than gone.
+				// THIRD ATTEMPT, and this time nothing is changed except the width at the call
+				// site. Sprites/Default hardcodes ZTest and ZWrite inside its shader pass, so the
+				// SetInt calls that used to be here were no-ops — which left renderQueue = 5000
+				// (past the Overlay queue at 4000) as the ONLY real difference from the DrawLine
+				// path that demonstrably renders. That is the remaining suspect, so it goes.
+				//
+				// Visible-and-occluded beats invisible. Drawing through geometry is a separate
+				// improvement and needs its own evidence, not a fourth guess stacked on this one.
+				_overlayLineMat = new Material(LINEMAT.shader);
+				_overlayLineMat.hideFlags = HideFlags.HideAndDontSave;
+			}
+			return _overlayLineMat;
+		}
+	}
+
+	/// <summary>Draws through geometry, and thicker than DrawLine, for readable diagnostics.</summary>
+	public static void DrawLineOnTop(Vector3 start, Vector3 end, Color color, float duration = 0.2f,
+		float width = 0.004f)
+	{
+		// IDENTICAL TO DrawLine EXCEPT FOR WIDTH. AutoSeek's lines are always visible through
+		// geometry and have been the whole time — so a working configuration already existed and
+		// every attempt to build a better one (a different shader, a raised render queue, a
+		// camera-facing depth bias) was solving a problem that only my own material clone had.
+		// The lesson is the cheap one: when something in the codebase already does the thing,
+		// call it rather than reconstructing it.
+		DebugLine pooled = DebugLine.Create();
+		LineRenderer lr = pooled.Renderer;
+		lr.transform.position = start;
+		lr.material = LINEMAT;
+		lr.startColor = color;
+		lr.endColor = color;
+		lr.startWidth = width;
+		lr.endWidth = width;
+		lr.SetPosition(0, start);
+		lr.SetPosition(1, end);
+		lr.alignment = LineAlignment.View;
+		pooled.gameObject.SetActive(value: true);
+		pooled.Expire(duration);
+	}
+
 	public static void DrawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
 	{
 		DebugLine pooled = DebugLine.Create();
