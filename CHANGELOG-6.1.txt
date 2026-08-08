@@ -1,0 +1,42 @@
+BetterExperience 6.0.1
+============================================
+
+REMOVED
+-------
+Alternative Genetics, Autorating, Alternative Ratings, Single Group Mode,
+Auto Training. They targeted the old gene system that 23.1 no longer uses.
+The Auto Training save-corruption risk goes with them. Gene Tool is unaffected.
+
+ADDED
+-----
+Fix for the Graphics settings resolution and refresh-rate dropdowns reverting
+after Apply (the refresh rate was being rounded before it was saved to config).
+
+Mission Control — seek speed slider. Higher speeds are much faster but can get
+wonky; 1.0x is the default and the most reliable.
+
+"No pause on Alt+Tab" is now in the BetterExperience settings menu. The feature
+already existed but was only reachable by editing the config file.
+
+FIXED
+-----
+Auto Seeker — reworked. Movement is smoothly animated instead of stepping, and
+the approach is faster and goes straight in rather than wandering around. Mouth
+penetration is much more reliable.
+
+Auto Thrust — reworked around 23.1's resistance and depth mechanics.
+Positioning and stroke no longer cancel each other out; fixed a stall at full
+withdrawal and a too-slow minimum speed.
+
+Model changes no longer break the mod. Swapping in a second model used to
+silently kill Auto Seeker, Auto Thrust and cloth removal for the session.
+
+Fixed a startup crash ("BetterExperience is doomed") when Monkey's
+config/Monkey/Assets folder was missing.
+
+REQUIREMENTS — unchanged
+------------------------
+BepInEx 5.4.23.5 · pydlr (IronPython 3) · Monkey 1.15+ · SMA 23.1
+
+The Complete package now bundles BepInEx, pydlr and Monkey. Extract over the
+game folder.

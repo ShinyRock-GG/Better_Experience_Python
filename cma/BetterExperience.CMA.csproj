@@ -1,0 +1,92 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- BETTEREXPERIENCE FOR CORRUPTED MODELING AGENCY (IL2CPP).
+       ======================================================================================
+       A SECOND BUILD of the same source, not a fork. CMA is the same game compiled with IL2CPP
+       instead of Mono, so the code is largely portable but nothing about the BUILD is shared:
+
+         SMA target                       CMA target
+         net472                           net6.0
+         BepInEx 5 (Mono)                 BepInEx 6 (IL2CPP)
+         game's own Managed/*.dll         BepInEx/interop/*.dll  (Il2CppInterop proxies)
+         BaseUnityPlugin                  BasePlugin
+         Chainloader.PluginInfos          IL2CPPChainloader.Instance.Plugins
+
+       Measured surface (PORT_ASSESSMENT.md in the CMA root): of 386 game symbols core
+       BetterExperience touches, 334 are reachable as-is and 52 break — 33 of those in TValle.IU
+       alone. So the simulation features port well before the windows do.
+
+       SOURCES ARE ADDED DELIBERATELY, ONE GROUP AT A TIME. The <Compile> list below is explicit
+       rather than a glob: dropping all ~200 core files in at once produces hundreds of errors
+       with no way to tell a real port problem from a missing reference. Get the shell loading
+       first, then add a feature and its dependencies, then the next.
+       ====================================================================================== -->
+
+  <PropertyGroup>
+    <AssemblyName>BetterExperience</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <RootNamespace />
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>portable</DebugType>
+    <!-- Outside every scanned plugin tree, same rule as SeekLab and DevProbe. -->
+    <BaseOutputPath>F:\Games\AAA\SMA_23.1_HomeworkTestbed\_build\BetterExperience.CMA\</BaseOutputPath>
+    <BaseIntermediateOutputPath>F:\Games\AAA\SMA_23.1_HomeworkTestbed\_build\BetterExperience.CMA\obj\</BaseIntermediateOutputPath>
+    <!-- Interop assemblies are generated and enormous; their doc-comment and CLS warnings are
+         not ours to fix and would bury the errors that matter. -->
+    <NoWarn>CS0436;CS1701;CS1702;CS0169;CS0649</NoWarn>
+    <!-- Explicit source list, so the staged port is visible in the project file rather than
+         implied by what happens to be in the folder. Requires disabling the SDK's default glob,
+         which would otherwise add every .cs twice. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CmaRoot>G:\Games\AAA\Corrupted Modeling Agency 0.61</CmaRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The loader. BepInEx 6 splits what BepInEx 5 kept in one assembly. -->
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(CmaRoot)\BepInEx\core\BepInEx.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>$(CmaRoot)\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(CmaRoot)\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(CmaRoot)\BepInEx\core\0Harmony.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- EVERY interop assembly, by wildcard. Unlike the SMA build — where the reference list is
+         hand-maintained — these are generated from the game itself and there are 180 of them;
+         enumerating by hand would guarantee a missing one at the worst moment. They are
+         reference-only: BepInEx loads them at runtime, so copying them into the output would
+         ship 180 duplicate DLLs. -->
+    <InteropDll Include="$(CmaRoot)\BepInEx\interop\*.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- %(InteropDll.X) in the Include triggers MSBuild batching, so each Reference gets the
+         HintPath of the DLL it came from. A transform (@(InteropDll->'%(Filename)')) does NOT:
+         it produces the right names with no paths, and the build then fails with 177 "could not
+         resolve this reference" warnings and no output. -->
+    <Reference Include="%(InteropDll.Filename)">
+      <HintPath>%(InteropDll.FullPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- STAGE 0: the shell. Proves the toolchain — references resolve, net6 plugin loads under
+         BepInEx 6, chainloader reports it — before any ported game code can confuse the result.
+         Add source groups below as each is ported. -->
+    <Compile Include="Stage0Plugin.cs" />
+  </ItemGroup>
+
+</Project>
